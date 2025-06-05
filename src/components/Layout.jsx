@@ -19,8 +19,13 @@ const Layout = () => {
 
   const menuVars = {
     initial: { scaleX: 0 },
-    animate: { scaleX: 1 },
-    exit: { scaleX: 0 },
+    animate: { scaleX: 1, transition: { duration: 0.3, ease: 'easeInOut' } },
+    exit: { scaleX: 0, transition: { duration: 0.3, ease: 'easeInOut' } },
+  };
+
+  const linkVariants = {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
 
   const toggleMenu = () => setOpen(!open);
@@ -36,16 +41,7 @@ const Layout = () => {
     }
   }, [loading, user]);
 
-  // Display loading indicator
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Жүктелуде...
-      </div>
-    );
-  }
-
-  // Проверка роли учителя
+  // Check for teacher and admin roles
   const isTeacher = Array.isArray(user?.roles) && user.roles.length > 0
     ? user.roles.some((role) => {
         if (typeof role === 'string') {
@@ -57,13 +53,24 @@ const Layout = () => {
       })
     : false;
 
-  console.log('isTeacher:', isTeacher);
+  const isAdmin = Array.isArray(user?.roles) && user.roles.length > 0
+    ? user.roles.some((role) => {
+        if (typeof role === 'string') {
+          return role.toLowerCase() === 'admin';
+        } else if (role && 'name' in role) {
+          return role.name.toLowerCase() === 'admin';
+        }
+        return false;
+      })
+    : false;
+
+  console.log('isTeacher:', isTeacher, 'isAdmin:', isAdmin);
 
   return (
-    <div>
-      <header className="sticky top-0 z-30 py-5 bg-white min-h-10">
-        <div className="flex justify-between items-center max-w-7xl px-10 my-0 mx-auto">
-          <div className="flex gap-8 items-center">
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      <header className="sticky top-0 z-30 bg-white shadow-md py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div className="flex items-center gap-8">
             <NavLink to="/">
               <img
                 src="/assets/images/logo.png"
@@ -71,13 +78,13 @@ const Layout = () => {
                 className="h-10 w-auto"
               />
             </NavLink>
-            <nav className="hidden lg:block space-x-4 text-xl font-medium">
+            <nav className="hidden lg:flex space-x-6 text-lg font-medium">
               {!user && (
                 <>
                   <NavLink
                     to="/"
                     className={({ isActive }) =>
-                      isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
+                      `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                     }
                   >
                     Басты
@@ -85,7 +92,7 @@ const Layout = () => {
                   <NavLink
                     to="/about"
                     className={({ isActive }) =>
-                      isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
+                      `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                     }
                   >
                     Біз туралы
@@ -99,15 +106,23 @@ const Layout = () => {
                       <NavLink
                         to="/dashboard"
                         className={({ isActive }) =>
-                          isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
+                          `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
                         Доска
                       </NavLink>
                       <NavLink
+                        to="/schedule"
+                        className={({ isActive }) =>
+                          `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                        }
+                      >
+                        Расписание
+                      </NavLink>
+                      <NavLink
                         to="/create-schedule"
                         className={({ isActive }) =>
-                          isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
+                          `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
                         Кесте
@@ -115,17 +130,45 @@ const Layout = () => {
                       <NavLink
                         to="/journal-entry"
                         className={({ isActive }) =>
-                          isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
+                          `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
                         Журнал
                       </NavLink>
                     </>
                   )}
+                  {isAdmin && (
+                    <>
+                      <NavLink
+                        to="/register-participants"
+                        className={({ isActive }) =>
+                          `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                        }
+                      >
+                        Регистрация участников
+                      </NavLink>
+                      <NavLink
+                        to="/groups"
+                        className={({ isActive }) =>
+                          `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                        }
+                      >
+                        Группы
+                      </NavLink>
+                      <NavLink
+                        to="/subjects"
+                        className={({ isActive }) =>
+                          `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                        }
+                      >
+                        Предметы
+                      </NavLink>
+                    </>
+                  )}
                   <NavLink
                     to="/profile"
                     className={({ isActive }) =>
-                      isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
+                      `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                     }
                   >
                     Профиль
@@ -134,29 +177,27 @@ const Layout = () => {
               )}
             </nav>
           </div>
-          <div className="lg:flex gap-3 text-xl items-center hidden">
+          <div className="hidden lg:flex items-center gap-4">
             {user ? (
-              <div className="flex flex-row items-center gap-x-10">
-                <div className="flex flex-row gap-x-4">
-                  <p className="text-lg">{user.name}</p>
-                  <button
-                    onClick={logout}
-                    className="text-lg hover:text-[#007AFF]"
-                  >
-                    Шығу
-                  </button>
-                </div>
+              <div className="flex items-center gap-6">
+                <span className="text-lg text-gray-800">{user.name}</span>
+                <button
+                  onClick={logout}
+                  className="bg-[#007AFF] text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition-all duration-200"
+                >
+                  Шығу
+                </button>
               </div>
             ) : (
               <button
                 onClick={openLoginModal}
-                className="font-bold hover:text-[#007AFF]"
+                className="bg-[#007AFF] text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition-all duration-200"
               >
                 Кіру
               </button>
             )}
           </div>
-          <FiMenu className="lg:hidden" onClick={toggleMenu} />
+          <FiMenu className="lg:hidden text-2xl cursor-pointer" onClick={toggleMenu} />
           <AnimatePresence>
             {open && (
               <motion.div
@@ -164,86 +205,149 @@ const Layout = () => {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="fixed left-0 top-0 w-full h-screen origin-right bg-white text-black p-10 z-10"
+                className="fixed left-0 top-0 w-full h-screen bg-white text-black p-6 z-50"
               >
-                <div className="flex h-full flex-col">
+                <div className="flex flex-col h-full">
                   <div className="flex justify-end">
-                    <IoIosClose size={40} onClick={toggleMenu} />
+                    <IoIosClose size={40} className="cursor-pointer" onClick={toggleMenu} />
                   </div>
-                  <div className="flex flex-col items-center text-xl">
+                  <nav className="flex flex-col items-center gap-4 text-xl mt-8">
                     {!user && (
                       <>
-                        <NavLink
-                          to="/"
-                          onClick={toggleMenu}
-                          className={({ isActive }) =>
-                            isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
-                          }
-                        >
-                          Басты
-                        </NavLink>
-                        <NavLink
-                          to="/about"
-                          onClick={toggleMenu}
-                          className={({ isActive }) =>
-                            isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
-                          }
-                        >
-                          Біз туралы
-                        </NavLink>
+                        <motion.div variants={linkVariants} initial="initial" animate="animate">
+                          <NavLink
+                            to="/"
+                            onClick={toggleMenu}
+                            className={({ isActive }) =>
+                              `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                            }
+                          >
+                            Басты
+                          </NavLink>
+                        </motion.div>
+                        <motion.div variants={linkVariants} initial="initial" animate="animate">
+                          <NavLink
+                            to="/about"
+                            onClick={toggleMenu}
+                            className={({ isActive }) =>
+                              `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                            }
+                          >
+                            Біз туралы
+                          </NavLink>
+                        </motion.div>
                       </>
                     )}
                     {user && (
                       <>
                         {isTeacher && (
                           <>
-                            <NavLink
-                              to="/dashboard"
-                              onClick={toggleMenu}
-                              className={({ isActive }) =>
-                                isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
-                              }
-                            >
-                              Доска
-                            </NavLink>
-                            <NavLink
-                              to="/create-schedule"
-                              onClick={toggleMenu}
-                              className={({ isActive }) =>
-                                isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
-                              }
-                            >
-                              Кесте
-                            </NavLink>
-                            <NavLink
-                              to="/journal-entry"
-                              onClick={toggleMenu}
-                              className={({ isActive }) =>
-                                isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
-                              }
-                            >
-                              Журнал
-                            </NavLink>
+                            <motion.div variants={linkVariants} initial="initial" animate="animate">
+                              <NavLink
+                                to="/dashboard"
+                                onClick={toggleMenu}
+                                className={({ isActive }) =>
+                                  `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                                }
+                              >
+                                Доска
+                              </NavLink>
+                            </motion.div>
+                            <motion.div variants={linkVariants} initial="initial" animate="animate">
+                              <NavLink
+                                to="/schedule"
+                                onClick={toggleMenu}
+                                className={({ isActive }) =>
+                                  `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                                }
+                              >
+                                Расписание
+                              </NavLink>
+                            </motion.div>
+                            <motion.div variants={linkVariants} initial="initial" animate="animate">
+                              <NavLink
+                                to="/create-schedule"
+                                onClick={toggleMenu}
+                                className={({ isActive }) =>
+                                  `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                                }
+                              >
+                                Кесте
+                              </NavLink>
+                            </motion.div>
+                            <motion.div variants={linkVariants} initial="initial" animate="animate">
+                              <NavLink
+                                to="/journal-entry"
+                                onClick={toggleMenu}
+                                className={({ isActive }) =>
+                                  `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                                }
+                              >
+                                Журнал
+                              </NavLink>
+                            </motion.div>
                           </>
                         )}
-                        <NavLink
-                          to="/profile"
-                          onClick={toggleMenu}
-                          className={({ isActive }) =>
-                            isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
-                          }
-                        >
-                          Профиль
-                        </NavLink>
+                        {isAdmin && (
+                          <>
+                            <motion.div variants={linkVariants} initial="initial" animate="animate">
+                              <NavLink
+                                to="/register-participants"
+                                onClick={toggleMenu}
+                                className={({ isActive }) =>
+                                  `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                                }
+                              >
+                                Регистрация участников
+                              </NavLink>
+                            </motion.div>
+                            <motion.div variants={linkVariants} initial="initial" animate="animate">
+                              <NavLink
+                                to="/groups"
+                                onClick={toggleMenu}
+                                className={({ isActive }) =>
+                                  `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                                }
+                              >
+                                Группы
+                              </NavLink>
+                            </motion.div>
+                            <motion.div variants={linkVariants} initial="initial" animate="animate">
+                              <NavLink
+                                to="/subjects"
+                                onClick={toggleMenu}
+                                className={({ isActive }) =>
+                                  `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                                }
+                              >
+                                Предметы
+                              </NavLink>
+                            </motion.div>
+                          </>
+                        )}
+                        <motion.div variants={linkVariants} initial="initial" animate="animate">
+                          <NavLink
+                            to="/profile"
+                            onClick={toggleMenu}
+                            className={({ isActive }) =>
+                              `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
+                            }
+                          >
+                            Профиль
+                          </NavLink>
+                        </motion.div>
                       </>
                     )}
-                    <div className="flex flex-col gap-3 text-md items-center my-10">
+                    <motion.div variants={linkVariants} initial="initial" animate="animate" className="mt-8">
                       {user ? (
-                        <div className="flex flex-col items-center">
-                          <span>{user.name}</span>
+                        <div className="flex flex-col items-center gap-4">
+                          <span className="text-lg text-gray-800">{user.name}</span>
                           <button
-                            onClick={logout}
-                            className="font-bold hover:text-[#007AFF]"
+                            onClick={() => {
+                              logout();
+                              toggleMenu();
+                            }}
+                            className="bg-[#007AFF] text-white px-6 py-2 rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition-all duration-200"
                           >
                             Шығу
                           </button>
@@ -254,28 +358,28 @@ const Layout = () => {
                             toggleMenu();
                             openLoginModal();
                           }}
-                          className="font-bold hover:text-[#007AFF]"
+                          className="bg-[#007AFF] text-white px-6 py-2 rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition-all duration-200"
                         >
                           Кіру
                         </button>
                       )}
-                    </div>
-                  </div>
+                    </motion.div>
+                  </nav>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </header>
-      <main className="w-full">
+      <main className="flex-1 w-full">
         <Outlet />
         <AnimatePresence>
           <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
         </AnimatePresence>
       </main>
-      <footer className="flex flex-col md:flex-row items-center md:items-start w-full justify-center md:justify-between border-t-2">
-        <div className="flex items-center justify-around w-3/4 flex-wrap gap-3">
-          <div className="flex flex-col items-start">
+      <footer className="bg-white border-t border-gray-200 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
+          <div className="flex flex-col items-center md:items-start">
             <NavLink to="/">
               <img
                 src="/assets/images/logo.png"
@@ -283,25 +387,25 @@ const Layout = () => {
                 className="h-8 w-auto mb-4"
               />
             </NavLink>
-            <div className="flex items-center justify-center space-x-5 my-5 w-full">
-              <a href="#">
+            <div className="flex items-center gap-4">
+              <a href="#" className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
                 <FaFacebookF color="#213F99" size={20} />
               </a>
-              <a href="#">
+              <a href="#" className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
                 <CiInstagram color="#213F99" size={20} />
               </a>
-              <a href="#">
+              <a href="#" className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
                 <IoLogoYoutube color="#213F99" size={20} />
               </a>
             </div>
           </div>
-          <div className="flex flex-col text-start xs:text-xl">
+          <div className="flex flex-col items-center md:items-start gap-2 text-lg">
             {!user && (
               <>
                 <NavLink
                   to="/"
                   className={({ isActive }) =>
-                    isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
+                    `transition-colors ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                   }
                 >
                   Басты
@@ -309,7 +413,7 @@ const Layout = () => {
                 <NavLink
                   to="/about"
                   className={({ isActive }) =>
-                    isActive ? 'text-[#007AFF]' : 'text-[#9CA3AF]'
+                    `transition-colors ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                   }
                 >
                   Біз туралы
@@ -317,17 +421,12 @@ const Layout = () => {
               </>
             )}
           </div>
-          <div className="text-[#007AFF] text-center my-5 md:text-start">
-            <h1 className="text-2xl font-semibold">Жұмыс уақыты</h1>
-            <p>Дүйсенбі - Жұма</p>
-            <p>08:00 - 18:00</p>
+          <div className="text-center md:text-left">
+            <h1 className="text-xl font-semibold text-[#007AFF] mb-2">Жұмыс уақыты</h1>
+            <p className="text-gray-600">Дүйсенбі - Жұма</p>
+            <p className="text-gray-600">08:00 - 18:00</p>
           </div>
         </div>
-        <img
-          className="relative right-0 w-full md:w-1/3 object-cover"
-          src="https://img2.hocoos.com/cache/img-pack/1/w-620/h-285/ww-620/wh-285/img-pack/1/default-footer-bg.png"
-          alt="Footer background"
-        />
       </footer>
     </div>
   );

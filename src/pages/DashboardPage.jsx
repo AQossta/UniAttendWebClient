@@ -77,6 +77,10 @@ const DashboardPage = () => {
     }
   };
 
+  const handleGroupClick = (groupId) => {
+    navigate(`/group/${groupId}/students`);
+  };
+
   useEffect(() => {
     fetchGroupsAndSubjects();
   }, [user]);
@@ -156,6 +160,7 @@ const DashboardPage = () => {
                       className="bg-[colors.cardBackground] rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer bg-gradient-to-br from-white to-gray-50"
                       variants={itemVariants}
                       whileHover={{ scale: 1.02 }}
+                      onClick={() => handleGroupClick(group.id)}
                     >
                       <p className="text-[colors.textPrimary] text-lg font-semibold">
                         {group.name}
