@@ -1,11 +1,11 @@
-import { NavLink } from "react-router-dom"
+import { NavLink } from "react-router-dom";
 
-function NotFoundPage(){
-    return(
-        <>
-            This is NotFoundPage, go <NavLink to='/'>Home</NavLink>
-        </>
-    )
+function NotFoundPage() {
+  return (
+    <>
+      Бұл бет табылмады, <NavLink to='/'>Басты бетке</NavLink> өтіңіз
+    </>
+  );
 }
 
-export default NotFoundPage
+export default NotFoundPage;

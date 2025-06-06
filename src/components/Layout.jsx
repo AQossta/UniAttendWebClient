@@ -32,7 +32,7 @@ const Layout = () => {
   const openLoginModal = () => setIsLoginModalOpen(true);
   const closeLoginModal = () => setIsLoginModalOpen(false);
 
-  // Open login modal if user is not authenticated
+  // Пайдаланушы аутентификацияланбаған жағдайда логин модалын ашу
   useEffect(() => {
     if (!loading && !user) {
       openLoginModal();
@@ -41,7 +41,7 @@ const Layout = () => {
     }
   }, [loading, user]);
 
-  // Check for teacher and admin roles
+  // Мұғалім және әкімші рөлдерін тексеру
   const isTeacher = Array.isArray(user?.roles) && user.roles.length > 0
     ? user.roles.some((role) => {
         if (typeof role === 'string') {
@@ -74,7 +74,7 @@ const Layout = () => {
             <NavLink to="/">
               <img
                 src="/assets/images/logo.png"
-                alt="UniAttend Logo"
+                alt="UniAttend логотипі"
                 className="h-10 w-auto"
               />
             </NavLink>
@@ -109,7 +109,7 @@ const Layout = () => {
                           `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
-                        Доска
+                        Тақта
                       </NavLink>
                       <NavLink
                         to="/schedule"
@@ -117,7 +117,7 @@ const Layout = () => {
                           `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
-                        Расписание
+                        Кесте
                       </NavLink>
                       <NavLink
                         to="/create-schedule"
@@ -125,7 +125,7 @@ const Layout = () => {
                           `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
-                        Кесте
+                        Кесте құру
                       </NavLink>
                       <NavLink
                         to="/journal-entry"
@@ -145,7 +145,7 @@ const Layout = () => {
                           `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
-                        Регистрация участников
+                        Қатысушыларды тіркеу
                       </NavLink>
                       <NavLink
                         to="/groups"
@@ -153,7 +153,7 @@ const Layout = () => {
                           `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
-                        Группы
+                        Топтар
                       </NavLink>
                       <NavLink
                         to="/subjects"
@@ -161,7 +161,7 @@ const Layout = () => {
                           `transition-colors duration-200 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                         }
                       >
-                        Предметы
+                        Пәндер
                       </NavLink>
                     </>
                   )}
@@ -250,7 +250,7 @@ const Layout = () => {
                                   `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                                 }
                               >
-                                Доска
+                                Тақта
                               </NavLink>
                             </motion.div>
                             <motion.div variants={linkVariants} initial="initial" animate="animate">
@@ -261,7 +261,7 @@ const Layout = () => {
                                   `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                                 }
                               >
-                                Расписание
+                                Кесте
                               </NavLink>
                             </motion.div>
                             <motion.div variants={linkVariants} initial="initial" animate="animate">
@@ -272,7 +272,7 @@ const Layout = () => {
                                   `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                                 }
                               >
-                                Кесте
+                                Кесте құру
                               </NavLink>
                             </motion.div>
                             <motion.div variants={linkVariants} initial="initial" animate="animate">
@@ -298,7 +298,7 @@ const Layout = () => {
                                   `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                                 }
                               >
-                                Регистрация участников
+                                Қатысушыларды тіркеу
                               </NavLink>
                             </motion.div>
                             <motion.div variants={linkVariants} initial="initial" animate="animate">
@@ -309,7 +309,7 @@ const Layout = () => {
                                   `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                                 }
                               >
-                                Группы
+                                Топтар
                               </NavLink>
                             </motion.div>
                             <motion.div variants={linkVariants} initial="initial" animate="animate">
@@ -320,7 +320,7 @@ const Layout = () => {
                                   `block py-2 ${isActive ? 'text-[#007AFF] font-semibold' : 'text-gray-600 hover:text-[#007AFF]'}`
                                 }
                               >
-                                Предметы
+                                Пәндер
                               </NavLink>
                             </motion.div>
                           </>
@@ -383,7 +383,7 @@ const Layout = () => {
             <NavLink to="/">
               <img
                 src="/assets/images/logo.png"
-                alt="UniAttend Logo"
+                alt="UniAttend логотипі"
                 className="h-8 w-auto mb-4"
               />
             </NavLink>

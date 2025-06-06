@@ -8,7 +8,7 @@ import 'react-datetime-picker/dist/DateTimePicker.css';
 import { motion } from 'framer-motion';
 import { API_BASE } from '../api/API';
 
-// Custom CSS for DateTimePicker to match the image and ensure clock visibility
+// Custom CSS for DateTimePicker (unchanged)
 const dateTimePickerStyles = `
   .react-datetime-picker {
     width: 100%;
@@ -77,6 +77,7 @@ const API_TEACHER_SUBJECTS = `${API_BASE}api/v1/teacher/subject`;
 const API_CREATE_SCHEDULE = `${API_BASE}api/v1/teacher/schedule/create`;
 const API_CREATE_RECURRING_SCHEDULE = `${API_BASE}api/v1/teacher/schedule/create-recurring`;
 const API_GROUPS = `${API_BASE}api/v1/teacher/group`;
+const API_TEACHERS = `${API_BASE}api/v1/admin/users/all`;
 
 const CreateSchedulePage = () => {
   const { user, logout } = useAuth();
@@ -84,16 +85,41 @@ const CreateSchedulePage = () => {
 
   const [subjects, setSubjects] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [isRecurring, setIsRecurring] = useState(false); // New state for recurring option
+  const [isRecurring, setIsRecurring] = useState(false);
 
-  // Light theme colors (consistent with the image)
+  // Determine if user is admin or teacher
+  const isTeacher = Array.isArray(user?.roles) && user.roles.length > 0
+    ? user.roles.some((role) => {
+        if (typeof role === 'string') {
+          return role.toLowerCase() === 'teacher';
+        } else if (role && 'name' in role) {
+          return role.name.toLowerCase() === 'teacher';
+        }
+        return false;
+      })
+    : false;
+
+  const isAdmin = Array.isArray(user?.roles) && user.roles.length > 0
+    ? user.roles.some((role) => {
+        if (typeof role === 'string') {
+          return role.toLowerCase() === 'admin';
+        } else if (role && 'name' in role) {
+          return role.name.toLowerCase() === 'admin';
+        }
+        return false;
+      })
+    : false;
+
+  // Light theme colors (unchanged)
   const colors = {
     background: '#F3F4F6',
     cardBackground: '#FFFFFF',
@@ -105,7 +131,7 @@ const CreateSchedulePage = () => {
     inputBackground: '#F9FAFB',
   };
 
-  // Generate suggested time slots from 8:00 to 18:00 (1-hour intervals)
+  // Generate suggested time slots from 8:00 to 18:00 (unchanged)
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 8; hour < 18; hour++) {
@@ -121,12 +147,11 @@ const CreateSchedulePage = () => {
 
   const timeSlots = generateTimeSlots();
 
-  // Handle clicking a suggested time slot
+  // Handle clicking a suggested time slot (unchanged)
   const handleSlotSelection = (slot) => {
     const [startHour, startMinute] = slot.start.split(':').map(Number);
     const [endHour, endMinute] = slot.end.split(':').map(Number);
 
-    // Preserve the selected date, only update the time
     const newStartTime = new Date(startTime);
     newStartTime.setHours(startHour, startMinute, 0, 0);
 
@@ -137,9 +162,18 @@ const CreateSchedulePage = () => {
     setEndTime(newEndTime);
   };
 
-  const fetchSubjectsAndGroups = async () => {
+  // Fetch subjects, groups, and optionally teachers
+  const fetchSubjectsGroupsAndTeachers = async () => {
     if (!user) {
-      setError('Данные пользователя отсутствуют');
+      setError('Пайдаланушы деректері жоқ');
+      navigate('/profile');
+      return;
+    }
+
+    // Check if user is authorized
+    if (!isAdmin && !isTeacher) {
+      setError('Кіруге рұқсат жоқ');
+      navigate('/profile');
       return;
     }
 
@@ -149,22 +183,45 @@ const CreateSchedulePage = () => {
     try {
       const accessToken = user.accessToken || localStorage.getItem('accessToken');
       if (!accessToken) {
-        throw new Error('Токен доступа отсутствует');
+        throw new Error('Қатынас токені жоқ');
       }
 
-      const [subjectsResponse, groupsResponse] = await Promise.all([
+      // Prepare API calls
+      const apiCalls = [
         axios.get(API_TEACHER_SUBJECTS, { headers: { 'Auth-token': accessToken } }),
         axios.get(API_GROUPS, { headers: { 'Auth-token': accessToken } }),
-      ]);
+      ];
 
-      setSubjects(subjectsResponse.data || []);
-      setGroups(groupsResponse.data || []);
+      // Only fetch teachers if the user is an admin
+      if (isAdmin) {
+        apiCalls.push(
+          axios.get(API_TEACHERS, { headers: { 'Auth-token': accessToken } })
+        );
+      }
+
+      const responses = await Promise.all(apiCalls);
+
+      setSubjects(responses[0].data || []);
+      setGroups(responses[1].data || []);
+
+      // Set teachers only if admin
+      if (isAdmin) {
+        setTeachers(responses[2].data.filter(teacher => teacher.roles.includes('teacher')) || []);
+      } else if (isTeacher) {
+        // For teachers, set their own details as the selected teacher
+        setSelectedTeacher({
+          id: user.id,
+          name: user.name,
+          value: user.id,
+          label: user.name,
+        });
+      }
     } catch (e) {
-      const errorMessage = e.response?.data?.message || 'Ошибка при загрузке данных';
+      const errorMessage = e.response?.data?.message || 'Деректерді жүктеу кезінде қате пайда болды';
       setError(errorMessage);
-      console.error('Ошибка:', errorMessage);
+      console.error('Қате:', errorMessage);
       if (e.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
         logout();
         navigate('/profile');
       }
@@ -174,12 +231,12 @@ const CreateSchedulePage = () => {
   };
 
   useEffect(() => {
-    fetchSubjectsAndGroups();
+    fetchSubjectsGroupsAndTeachers();
   }, [user]);
 
   const handleCreateSchedule = async () => {
-    if (!user || !selectedSubject || !selectedGroup || !startTime || !endTime) {
-      setError('Заполните все поля');
+    if (!user || !selectedSubject || !selectedGroup || !selectedTeacher || !startTime || !endTime) {
+      setError('Барлық өрістерді толтырыңыз');
       return;
     }
 
@@ -190,7 +247,7 @@ const CreateSchedulePage = () => {
     try {
       const accessToken = user.accessToken || localStorage.getItem('accessToken');
       if (!accessToken) {
-        throw new Error('Токен доступа отсутствует');
+        throw new Error('Қатынас токені жоқ');
       }
 
       const payload = {
@@ -198,7 +255,7 @@ const CreateSchedulePage = () => {
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
         groupId: selectedGroup.id,
-        lecturerId: user.id,
+        lecturerId: selectedTeacher.id,
       };
 
       const apiEndpoint = isRecurring ? API_CREATE_RECURRING_SCHEDULE : API_CREATE_SCHEDULE;
@@ -206,17 +263,17 @@ const CreateSchedulePage = () => {
         headers: { 'Auth-token': accessToken },
       });
 
-      setSuccess(response.data.message || (isRecurring ? 'Расписание успешно создано для всех слотов' : 'Расписание успешно создано'));
+      setSuccess(response.data.message || (isRecurring ? 'Кесте барлық слоттар үшін сәтті жасалды' : 'Кесте сәтті жасалды'));
       setTimeout(() => {
         setSuccess(null);
         navigate('/profile');
       }, 2000);
     } catch (e) {
-      const errorMessage = e.response?.data?.message || 'Ошибка при создании расписания';
+      const errorMessage = e.response?.data?.message || 'Кесте жасау кезінде қате пайда болды';
       setError(errorMessage);
-      console.error('Ошибка:', errorMessage);
+      console.error('Қате:', errorMessage);
       if (e.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
         logout();
         navigate('/profile');
       }
@@ -225,7 +282,7 @@ const CreateSchedulePage = () => {
     }
   };
 
-  // Format subjects and groups for react-select
+  // Format subjects, groups, and teachers for react-select
   const subjectOptions = subjects.map((subject) => ({
     value: subject.id,
     label: subject.name,
@@ -238,7 +295,13 @@ const CreateSchedulePage = () => {
     ...group,
   }));
 
-  // Animation variants
+  const teacherOptions = teachers.map((teacher) => ({
+    value: teacher.id,
+    label: teacher.name,
+    ...teacher,
+  }));
+
+  // Animation variants (unchanged)
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -266,7 +329,7 @@ const CreateSchedulePage = () => {
           className="text-3xl md:text-4xl font-bold text-[#007AFF] text-center mb-8"
           variants={itemVariants}
         >
-          Создать расписание
+          Кесте құру
         </motion.h1>
 
         {isLoading ? (
@@ -275,7 +338,7 @@ const CreateSchedulePage = () => {
             variants={itemVariants}
           >
             <div className="animate-spin h-10 w-10 border-4 border-[#007AFF] border-t-transparent rounded-full"></div>
-            <p className="mt-4 text-gray-600 text-lg">Загрузка данных...</p>
+            <p className="mt-4 text-gray-600 text-lg">Деректер жүктелуде...</p>
           </motion.div>
         ) : error ? (
           <motion.div
@@ -288,12 +351,12 @@ const CreateSchedulePage = () => {
           <div className="space-y-8">
             {/* Subject Selection */}
             <motion.div variants={itemVariants}>
-              <label className="block text-gray-600 font-semibold mb-2">Предмет</label>
+              <label className="block text-gray-600 font-semibold mb-2">Пән</label>
               <Select
                 options={subjectOptions}
                 value={subjectOptions.find((option) => option.value === selectedSubject?.id)}
                 onChange={(option) => setSelectedSubject(option)}
-                placeholder="Выберите предмет"
+                placeholder="Пәнді таңдаңыз"
                 className="text-gray-900"
                 styles={{
                   control: (base) => ({
@@ -316,12 +379,12 @@ const CreateSchedulePage = () => {
 
             {/* Group Selection */}
             <motion.div variants={itemVariants}>
-              <label className="block text-gray-600 font-semibold mb-2">Группа</label>
+              <label className="block text-gray-600 font-semibold mb-2">Топ</label>
               <Select
                 options={groupOptions}
                 value={groupOptions.find((option) => option.value === selectedGroup?.id)}
                 onChange={(option) => setSelectedGroup(option)}
-                placeholder="Выберите группу"
+                placeholder="Топты таңдаңыз"
                 className="text-gray-900"
                 styles={{
                   control: (base) => ({
@@ -342,9 +405,39 @@ const CreateSchedulePage = () => {
               />
             </motion.div>
 
+            {/* Teacher Selection (only for admins) */}
+            {isAdmin && (
+              <motion.div variants={itemVariants}>
+                <label className="block text-gray-600 font-semibold mb-2">Оқытушы</label>
+                <Select
+                  options={teacherOptions}
+                  value={teacherOptions.find((option) => option.value === selectedTeacher?.id)}
+                  onChange={(option) => setSelectedTeacher(option)}
+                  placeholder="Оқытушыны таңдаңыз"
+                  className="text-gray-900"
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      backgroundColor: colors.inputBackground,
+                      borderRadius: '0.75rem',
+                      padding: '0.5rem',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      border: 'none',
+                    }),
+                    option: (base, { isFocused }) => ({
+                      ...base,
+                      backgroundColor: isFocused ? colors.accent : colors.cardBackground,
+                      color: isFocused ? '#FFFFFF' : colors.textPrimary,
+                      padding: '12px 16px',
+                    }),
+                  }}
+                />
+              </motion.div>
+            )}
+
             {/* Start Time */}
             <motion.div variants={itemVariants}>
-              <label className="block text-gray-600 font-semibold mb-2">Время начала</label>
+              <label className="block text-gray-600 font-semibold mb-2">Басталу уақыты</label>
               <DateTimePicker
                 value={startTime}
                 onChange={setStartTime}
@@ -358,7 +451,7 @@ const CreateSchedulePage = () => {
 
             {/* End Time */}
             <motion.div variants={itemVariants}>
-              <label className="block text-gray-600 font-semibold mb-2">Время окончания</label>
+              <label className="block text-gray-600 font-semibold mb-2">Аяқталу уақыты</label>
               <DateTimePicker
                 value={endTime}
                 onChange={setEndTime}
@@ -372,7 +465,7 @@ const CreateSchedulePage = () => {
 
             {/* Suggested Time Slots */}
             <motion.div variants={itemVariants}>
-              <label className="block text-gray-600 font-semibold mb-2">Предложенные слоты</label>
+              <label className="block text-gray-600 font-semibold mb-2">Ұсынылған уақыт аралықтары</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                 {timeSlots.map((slot, index) => (
                   <button
@@ -395,7 +488,7 @@ const CreateSchedulePage = () => {
                   onChange={(e) => setIsRecurring(e.target.checked)}
                   className="mr-2 h-5 w-5 text-[#007AFF] focus:ring-[#007AFF]"
                 />
-                Создавать повторяющееся расписание до 31 мая 2026 года
+                2026 жылдың 31 мамырына дейін қайталанатын кесте құру
               </label>
             </motion.div>
 
@@ -408,7 +501,7 @@ const CreateSchedulePage = () => {
                   isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#007AFF] hover:bg-blue-600'
                 } transition-colors shadow-md`}
               >
-                {isLoading ? 'Создание...' : 'Создать'}
+                {isLoading ? 'Құрылуда...' : 'Құру'}
               </button>
             </motion.div>
 

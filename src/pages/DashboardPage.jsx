@@ -17,7 +17,7 @@ const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Light theme colors (consistent with other pages)
+  // Жарық тақырып түстері (басқа беттермен сәйкес)
   const colors = {
     background: '#F3F4F6',
     cardBackground: '#FFFFFF',
@@ -30,7 +30,7 @@ const DashboardPage = () => {
     gradientEnd: '#BFDBFE',
   };
 
-  // Check if user is a teacher
+  // Пайдаланушы мұғалім екенін тексеру
   const isTeacher = Array.isArray(user?.roles) && user.roles.length > 0
     ? user.roles.some((role) => {
         if (typeof role === 'string') {
@@ -53,7 +53,7 @@ const DashboardPage = () => {
     try {
       const accessToken = user.accessToken || localStorage.getItem('accessToken');
       if (!accessToken) {
-        throw new Error('Токен доступа отсутствует');
+        throw new Error('Қатынау токені жоқ');
       }
 
       const [groupsResponse, subjectsResponse] = await Promise.all([
@@ -64,11 +64,11 @@ const DashboardPage = () => {
       setGroups(groupsResponse.data || []);
       setSubjects(subjectsResponse.data || []);
     } catch (e) {
-      const errorMessage = e.response?.data?.message || 'Ошибка при загрузке данных';
+      const errorMessage = e.response?.data?.message || 'Деректерді жүктеу кезінде қате пайда болды';
       setError(errorMessage);
-      console.error('Ошибка:', errorMessage);
+      console.error('Қате:', errorMessage);
       if (e.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі бітті. Қайта кіріңіз');
         logout();
         navigate('/profile');
       }
@@ -85,7 +85,7 @@ const DashboardPage = () => {
     fetchGroupsAndSubjects();
   }, [user]);
 
-  // Animation variants
+  // Анимация нұсқалары
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -107,13 +107,13 @@ const DashboardPage = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* Header */}
+        {/* Тақырып */}
         <motion.div
           className="flex justify-between items-center mb-8"
           variants={itemVariants}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-[colors.textPrimary]">
-            Информационная доска
+            Ақпараттық тақта
           </h1>
           <div className="flex items-center gap-4">
             <span className="text-lg font-medium text-[colors.textSecondary]">
@@ -135,7 +135,7 @@ const DashboardPage = () => {
           >
             <div className="animate-spin h-12 w-12 border-4 border-[colors.accent] border-t-transparent rounded-full"></div>
             <p className="mt-6 text-[colors.textSecondary] text-xl font-semibold">
-              Загрузка данных...
+              Деректер жүктелуде...
             </p>
           </motion.div>
         ) : error ? (
@@ -147,10 +147,10 @@ const DashboardPage = () => {
           </motion.div>
         ) : (
           <div className="space-y-12">
-            {/* Groups Section */}
+            {/* Топтар бөлімі */}
             <motion.div variants={itemVariants}>
               <h2 className="text-2xl md:text-3xl font-semibold text-[colors.accent] mb-6">
-                Группы
+                Топтар
               </h2>
               {groups.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -166,22 +166,22 @@ const DashboardPage = () => {
                         {group.name}
                       </p>
                       <p className="text-[colors.textSecondary] text-sm mt-2">
-                        Группа #{group.id}
+                        Топ #{group.id}
                       </p>
                     </motion.div>
                   ))}
                 </div>
               ) : (
                 <p className="text-center text-[colors.textSecondary] text-xl font-semibold">
-                  Группы отсутствуют
+                  Топтар жоқ
                 </p>
               )}
             </motion.div>
 
-            {/* Subjects Section */}
+            {/* Пәндер бөлімі */}
             <motion.div variants={itemVariants}>
               <h2 className="text-2xl md:text-3xl font-semibold text-[colors.accent] mb-6">
-                Предметы
+                Пәндер
               </h2>
               {subjects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -196,14 +196,14 @@ const DashboardPage = () => {
                         {subject.name}
                       </p>
                       <p className="text-[colors.textSecondary] text-sm mt-2">
-                        Предмет #{subject.id}
+                        Пән #{subject.id}
                       </p>
                     </motion.div>
                   ))}
                 </div>
               ) : (
                 <p className="text-center text-[colors.textSecondary] text-xl font-semibold">
-                  Предметы отсутствуют
+                  Пәндер жоқ
                 </p>
               )}
             </motion.div>

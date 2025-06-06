@@ -20,18 +20,18 @@ const ProfilePage = () => {
             ? role.toLowerCase() === 'student'
               ? 'Студент'
               : role.toLowerCase() === 'teacher'
-              ? 'Учитель'
+              ? 'Оқытушы'
               : role
             : role.name
             ? role.name.toLowerCase() === 'student'
               ? 'Студент'
               : role.name.toLowerCase() === 'teacher'
-              ? 'Учитель'
+              ? 'Оқытушы'
               : role.name
-            : 'Неизвестная роль'
+            : 'Белгісіз рөл'
         )
         .join(', ')
-    : 'Роли не указаны';
+    : 'Рөлдер көрсетілмеген';
 
   // Обработка выхода из системы
   const handleLogout = () => {
@@ -69,13 +69,13 @@ const ProfilePage = () => {
               className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center text-4xl font-bold text-[#007AFF] mb-4"
               variants={itemVariants}
             >
-              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              {user.name ? user.name.charAt(0).toUpperCase() : 'P'}
             </motion.div>
             <motion.h1
               className="text-3xl md:text-4xl font-bold text-[#007AFF] text-center md:text-left"
               variants={itemVariants}
             >
-              {user.name || 'Пользователь'}
+              {user.name || 'Пайдаланушы'}
             </motion.h1>
             <motion.p
               className="text-lg text-gray-500 mt-2 text-center md:text-left"
@@ -96,19 +96,19 @@ const ProfilePage = () => {
                 variants={itemVariants}
               >
                 <span className="font-semibold text-gray-900 w-1/3 md:w-1/4">
-                  Электронная почта:
+                  Электрондық пошта:
                 </span>
-                <span className="text-gray-700">{user.email || 'Не указано'}</span>
+                <span className="text-gray-700">{user.email || 'Көрсетілмеген'}</span>
               </motion.div>
               <motion.div
                 className="flex items-center py-3 border-b border-gray-200"
                 variants={itemVariants}
               >
                 <span className="font-semibold text-gray-900 w-1/3 md:w-1/4">
-                  Номер телефона:
+                  Телефон нөмірі:
                 </span>
                 <span className="text-gray-700">
-                  {user.phoneNumber || 'Не указано'}
+                  {user.phoneNumber || 'Көрсетілмеген'}
                 </span>
               </motion.div>
               <motion.div
@@ -116,10 +116,10 @@ const ProfilePage = () => {
                 variants={itemVariants}
               >
                 <span className="font-semibold text-gray-900 w-1/3 md:w-1/4">
-                  Дата рождения:
+                  Туған күні:
                 </span>
                 <span className="text-gray-700">
-                  {user.dateOfBirth || user.birthday || 'Не указано'}
+                  {user.dateOfBirth || user.birthday || 'Көрсетілмеген'}
                 </span>
               </motion.div>
               {user.groupName && (
@@ -128,7 +128,7 @@ const ProfilePage = () => {
                   variants={itemVariants}
                 >
                   <span className="font-semibold text-gray-900 w-1/3 md:w-1/4">
-                    Группа:
+                    Топ:
                   </span>
                   <span className="text-gray-700">{user.groupName}</span>
                 </motion.div>

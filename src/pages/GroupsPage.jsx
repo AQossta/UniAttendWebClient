@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/AuthContext';
 import axios from 'axios';
+import { API_BASE } from '../api/API';
 
 const GroupsPage = () => {
     const { user, logout } = useAuth();
@@ -16,22 +17,22 @@ const GroupsPage = () => {
         const fetchGroups = async () => {
             const accessToken = user?.accessToken || localStorage.getItem('accessToken');
             if (!accessToken) {
-                setError('Токен доступа отсутствует');
+                setError('Қатынас токені жоқ');
                 setLoading(false);
                 return;
             }
             try {
-                const response = await axios.get('/api/v1/teacher/group', {
+                const response = await axios.get(API_BASE + 'api/v1/teacher/group', {
                     headers: { 'Auth-token': accessToken },
                 });
                 setGroups(Array.isArray(response.data) ? response.data : []);
                 setLoading(false);
             } catch (err) {
-                const errorMessage = err.response?.data?.message || 'Ошибка при загрузке групп';
+                const errorMessage = err.response?.data?.message || 'Топтарды жүктеу кезінде қате пайда болды';
                 setError(errorMessage);
                 setLoading(false);
                 if (err.response?.status === 401) {
-                    setError('Сессия истекла. Пожалуйста, войдите снова');
+                    setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
                     logout();
                     navigate('/profile');
                 }
@@ -44,26 +45,26 @@ const GroupsPage = () => {
     const handleAddGroup = async (e) => {
         e.preventDefault();
         if (!newGroup.trim()) {
-            setError('Название группы обязательно');
+            setError('Топ атауы міндетті');
             return;
         }
         const accessToken = user?.accessToken || localStorage.getItem('accessToken');
         if (!accessToken) {
-            setError('Токен доступа отсутствует');
+            setError('Қатынас токені жоқ');
             return;
         }
         try {
-            const response = await axios.post('/api/v1/teacher/group', { name: newGroup }, {
+            const response = await axios.post(API_BASE + 'api/v1/teacher/group', { name: newGroup }, {
                 headers: { 'Auth-token': accessToken },
             });
             setGroups([...groups, response.data]);
             setNewGroup('');
             setError(null);
         } catch (err) {
-            const errorMessage = err.response?.data?.message || 'Ошибка при добавлении группы';
+            const errorMessage = err.response?.data?.message || 'Топ қосу кезінде қате пайда болды';
             setError(errorMessage);
             if (err.response?.status === 401) {
-                setError('Сессия истекла. Пожалуйста, войдите снова');
+                setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
                 logout();
                 navigate('/profile');
             }
@@ -72,35 +73,36 @@ const GroupsPage = () => {
 
     // Delete group
     const handleDeleteGroup = async (id) => {
-        if (!window.confirm('Вы уверены, что хотите удалить эту группу?')) return;
+        if (!window.confirm('Осы топты жойғыңыз келетініне сенімдісіз бе?')) return;
         const accessToken = user?.accessToken || localStorage.getItem('accessToken');
         if (!accessToken) {
-            setError('Токен доступа отсутствует');
+            setError('Қатынас токені жоқ');
             return;
         }
         try {
-            await axios.delete(`/api/v1/teacher/group/${id}`, {
+            console.log(id);
+            await axios.delete(API_BASE + `api/v1/teacher/group/${id}`, {
                 headers: { 'Auth-token': accessToken },
             });
             setGroups(groups.filter((group) => group.id !== id));
             setError(null);
         } catch (err) {
-            const errorMessage = err.response?.data?.message || 'Ошибка при удалении группы';
+            const errorMessage = err.response?.data?.message || 'Топты жою кезінде қате пайда болды';
             setError(errorMessage);
             if (err.response?.status === 401) {
-                setError('Сессия истекла. Пожалуйста, войдите снова');
+                setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
                 logout();
                 navigate('/profile');
             }
         }
     };
 
-    if (loading) return <div className="flex justify-center items-center h-screen">Жүктелуде...</div>;
+    if (loading) return <div className="flex justify-center items-center h-screen">Деректер жүктелуде...</div>;
     if (error) return <div className="text-red-500 text-center">{error}</div>;
 
     return (
         <div className="max-w-7xl mx-auto p-6 bg-white">
-            <h1 className="text-2xl font-semibold text-[#007AFF] mb-4">Группы</h1>
+            <h1 className="text-2xl font-semibold text-[#007AFF] mb-4">Топтар</h1>
 
             {/* Add Group Form */}
             <form onSubmit={handleAddGroup} className="mb-6">
@@ -109,14 +111,14 @@ const GroupsPage = () => {
                         type="text"
                         value={newGroup}
                         onChange={(e) => setNewGroup(e.target.value)}
-                        placeholder="Введите название группы"
+                        placeholder="Топ атауын енгізіңіз"
                         className="flex-1 p-2 border border-gray-300 rounded"
                     />
                     <button
                         type="submit"
                         className="bg-[#007AFF] text-white px-4 py-2 rounded hover:bg-blue-600"
                     >
-                        Добавить
+                        Қосу
                     </button>
                 </div>
             </form>
@@ -127,8 +129,8 @@ const GroupsPage = () => {
                     <thead>
                         <tr className="bg-gray-100">
                             <th className="p-2 text-left">ID</th>
-                            <th className="p-2 text-left">Название</th>
-                            <th className="p-2 text-left">Действия</th>
+                            <th className="p-2 text-left">Атауы</th>
+                            <th className="p-2 text-left">Әрекеттер</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -141,7 +143,7 @@ const GroupsPage = () => {
                                         onClick={() => handleDeleteGroup(group.id)}
                                         className="text-red-500 hover:text-red-700"
                                     >
-                                        Удалить
+                                        Жою
                                     </button>
                                 </td>
                             </tr>

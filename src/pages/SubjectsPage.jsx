@@ -17,7 +17,7 @@ const SubjectsPage = () => {
     const fetchSubjects = async () => {
       const accessToken = user?.accessToken || localStorage.getItem('accessToken');
       if (!accessToken) {
-        setError('Токен доступа отсутствует');
+        setError('Қатынас токені жоқ');
         setLoading(false);
         return;
       }
@@ -28,11 +28,11 @@ const SubjectsPage = () => {
         setSubjects(Array.isArray(response.data) ? response.data : []);
         setLoading(false);
       } catch (err) {
-        const errorMessage = err.response?.data?.message || 'Ошибка при загрузке предметов';
+        const errorMessage = err.response?.data?.message || 'Пәндерді жүктеу кезінде қате пайда болды';
         setError(errorMessage);
         setLoading(false);
         if (err.response?.status === 401) {
-          setError('Сессия истекла. Пожалуйста, войдите снова');
+          setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
           logout();
           navigate('/profile');
         }
@@ -45,12 +45,12 @@ const SubjectsPage = () => {
   const handleAddSubject = async (e) => {
     e.preventDefault();
     if (!newSubject.trim()) {
-      setError('Название предмета обязательно');
+      setError('Пән атауы міндетті');
       return;
     }
     const accessToken = user?.accessToken || localStorage.getItem('accessToken');
     if (!accessToken) {
-      setError('Токен доступа отсутствует');
+      setError('Қатынас токені жоқ');
       return;
     }
     try {
@@ -61,10 +61,10 @@ const SubjectsPage = () => {
       setNewSubject('');
       setError(null);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Ошибка при добавлении предмета';
+      const errorMessage = err.response?.data?.message || 'Пәнді қосу кезінде қате пайда болды';
       setError(errorMessage);
       if (err.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
         logout();
         navigate('/profile');
       }
@@ -73,10 +73,10 @@ const SubjectsPage = () => {
 
   // Delete subject
   const handleDeleteSubject = async (id) => {
-    if (!window.confirm('Вы уверены, что хотите удалить этот предмет?')) return;
+    if (!window.confirm('Осы пәнді жойғыңыз келетініне сенімдісіз бе?')) return;
     const accessToken = user?.accessToken || localStorage.getItem('accessToken');
     if (!accessToken) {
-      setError('Токен доступа отсутствует');
+      setError('Қатынас токені жоқ');
       return;
     }
     try {
@@ -86,22 +86,22 @@ const SubjectsPage = () => {
       setSubjects(subjects.filter((subject) => subject.id !== id));
       setError(null);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Ошибка при удалении предмета';
+      const errorMessage = err.response?.data?.message || 'Пәнді жою кезінде қате пайда болды';
       setError(errorMessage);
       if (err.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
         logout();
         navigate('/profile');
       }
     }
   };
 
-  if (loading) return <div className="flex justify-center items-center h-screen">Жүктелуде...</div>;
+  if (loading) return <div className="flex justify-center items-center h-screen">Деректер жүктелуде...</div>;
   if (error) return <div className="text-red-500 text-center">{error}</div>;
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white">
-      <h1 className="text-2xl font-semibold text-[#007AFF] mb-4">Предметы</h1>
+      <h1 className="text-2xl font-semibold text-[#007AFF] mb-4">Пәндер</h1>
 
       {/* Add Subject Form */}
       <form onSubmit={handleAddSubject} className="mb-6">
@@ -110,15 +110,14 @@ const SubjectsPage = () => {
             type="text"
             value={newSubject}
             onChange={(e) => setNewSubject(e.target.value)}
-            placeholder="Введите название предмета"
+            placeholder="Пән атауын енгізіңіз"
             className="flex-1 p-2 border border-gray-300 rounded"
           />
           <button
             type="submit"
             className="bg-[#007AFF] text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Добавить
-
+            Қосу
           </button>
         </div>
       </form>
@@ -129,8 +128,8 @@ const SubjectsPage = () => {
           <thead>
             <tr className="bg-gray-100">
               <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Название</th>
-              <th className="p-2 text-left">Действия</th>
+              <th className="p-2 text-left">Атауы</th>
+              <th className="p-2 text-left">Әрекеттер</th>
             </tr>
           </thead>
           <tbody>
@@ -143,7 +142,7 @@ const SubjectsPage = () => {
                     onClick={() => handleDeleteSubject(subject.id)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    Удалить
+                    Жою
                   </button>
                 </td>
               </tr>

@@ -40,7 +40,7 @@ const JournalEntryPage = () => {
 
   const fetchGroupsAndSubjects = async () => {
     if (!user) {
-      setError('Данные пользователя отсутствуют');
+      setError('Пайдаланушы деректері жоқ');
       return;
     }
 
@@ -50,7 +50,7 @@ const JournalEntryPage = () => {
     try {
       const accessToken = user.accessToken || localStorage.getItem('accessToken');
       if (!accessToken) {
-        throw new Error('Токен доступа отсутствует');
+        throw new Error('Қатынас токені жоқ');
       }
 
       const [groupsResponse, subjectsResponse] = await Promise.all([
@@ -61,11 +61,11 @@ const JournalEntryPage = () => {
       setGroups(groupsResponse.data || []);
       setSubjects(subjectsResponse.data || []);
     } catch (e) {
-      const errorMessage = e.response?.data?.message || 'Ошибка при загрузке данных';
+      const errorMessage = e.response?.data?.message || 'Деректерді жүктеу кезінде қате пайда болды';
       setError(errorMessage);
-      console.error('Ошибка:', errorMessage);
+      console.error('Қате:', errorMessage);
       if (e.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
         logout();
         navigate('/profile');
       }
@@ -81,7 +81,7 @@ const JournalEntryPage = () => {
     try {
       const accessToken = user?.accessToken || localStorage.getItem('accessToken');
       if (!accessToken) {
-        throw new Error('Токен доступа отсутствует');
+        throw new Error('Қатынас токені жоқ');
       }
 
       const response = await axios.get(`${API_JOURNAL}/${groupId}?subjectId=${subjectId}`, {
@@ -109,11 +109,11 @@ const JournalEntryPage = () => {
       setUniqueDates([...datesSet].sort());
       setAssessmentMap(assessments);
     } catch (e) {
-      const errorMessage = e.response?.data?.message || 'Ошибка при загрузке журнала';
+      const errorMessage = e.response?.data?.message || 'Журналды жүктеу кезінде қате пайда болды';
       setError(errorMessage);
-      console.error('Ошибка:', errorMessage);
+      console.error('Қате:', errorMessage);
       if (e.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
         logout();
         navigate('/profile');
       }
@@ -186,7 +186,7 @@ const JournalEntryPage = () => {
             variants={itemVariants}
           >
             <div className="animate-spin h-10 w-10 border-4 border-[#007AFF] border-t-transparent rounded-full"></div>
-            <p className="mt-4 text-gray-600 text-lg">Загрузка данных...</p>
+            <p className="mt-4 text-gray-600 text-lg">Деректер жүктелуде...</p>
           </motion.div>
         ) : error ? (
           <motion.div
@@ -199,7 +199,7 @@ const JournalEntryPage = () => {
           <div className="space-y-8 max-w-full mx-auto">
             {/* Group Selection */}
             <motion.div variants={itemVariants}>
-              <label className="block text-gray-600 font-semibold mb-2">Группа</label>
+              <label className="block text-gray-600 font-semibold mb-2">Топ</label>
               <Select
                 options={groupOptions}
                 value={groupOptions.find((option) => option.value === selectedGroup?.id)}
@@ -211,7 +211,7 @@ const JournalEntryPage = () => {
                   setUniqueDates([]);
                   setAssessmentMap({});
                 }}
-                placeholder="Выберите группу"
+                placeholder="Топты таңдаңыз"
                 className="text-gray-900"
                 styles={{
                   control: (base) => ({
@@ -235,12 +235,12 @@ const JournalEntryPage = () => {
             {/* Subject Selection */}
             {selectedGroup && (
               <motion.div variants={itemVariants}>
-                <label className="block text-gray-600 font-semibold mb-2">Предмет</label>
+                <label className="block text-gray-600 font-semibold mb-2">Пән</label>
                 <Select
                   options={subjectOptions}
                   value={subjectOptions.find((option) => option.value === selectedSubject?.id)}
                   onChange={(option) => setSelectedSubject(option)}
-                  placeholder="Выберите предмет"
+                  placeholder="Пәнді таңдаңыз"
                   className="text-gray-900"
                   styles={{
                     control: (base) => ({
@@ -266,7 +266,7 @@ const JournalEntryPage = () => {
             {selectedGroup && selectedSubject && (
               <motion.div variants={itemVariants}>
                 <h2 className="text-xl font-semibold text-[#007AFF] mb-4">
-                  Журнал группы: {selectedGroup.name} ({selectedSubject.name})
+                  Топ журналы: {selectedGroup.name} ({selectedSubject.name})
                 </h2>
                 {students.length > 0 ? (
                   <div className="overflow-x-auto rounded-xl shadow-md">
@@ -274,7 +274,7 @@ const JournalEntryPage = () => {
                       <thead>
                         <tr className="bg-[#007AFF22] border-b border-gray-200">
                           <th className="py-3 px-4 text-left font-semibold text-gray-900 min-w-[200px]">
-                            ФИО
+                            Аты-жөні
                           </th>
                           {uniqueDates.map((date) => (
                             <th
@@ -308,7 +308,7 @@ const JournalEntryPage = () => {
                   </div>
                 ) : (
                   <p className="text-center text-gray-600 text-lg">
-                    Записи в журнале отсутствуют
+                    Журналда жазбалар жоқ
                   </p>
                 )}
               </motion.div>

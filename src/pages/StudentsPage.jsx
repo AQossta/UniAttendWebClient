@@ -54,7 +54,7 @@ const StudentsPage = () => {
     try {
       const accessToken = user.accessToken || localStorage.getItem('accessToken');
       if (!accessToken) {
-        throw new Error('Токен доступа отсутствует');
+        throw new Error('Қатынас токені жоқ');
       }
 
       const response = await axios.get(API_STUDENTS(groupId), {
@@ -63,11 +63,11 @@ const StudentsPage = () => {
 
       setStudents(response.data || []);
     } catch (e) {
-      const errorMessage = e.response?.data?.message || 'Ошибка при загрузке студентов';
+      const errorMessage = e.response?.data?.message || 'Студенттерді жүктеу кезінде қате пайда болды';
       setError(errorMessage);
-      console.error('Ошибка:', errorMessage);
+      console.error('Қате:', errorMessage);
       if (e.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
         navigate('/profile');
       }
     } finally {
@@ -112,13 +112,13 @@ const StudentsPage = () => {
           variants={itemVariants}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-[colors.textPrimary]">
-            Студенты и учителя группы #{groupId}
+            #{groupId} тобының студенттері мен оқытушылары
           </h1>
           <button
             onClick={() => navigate('/dashboard')}
             className="text-[colors.accent] hover:text-blue-600 font-semibold"
           >
-            Назад к доске
+            Бақылау тақтасына оралу
           </button>
         </motion.div>
 
@@ -129,7 +129,7 @@ const StudentsPage = () => {
           >
             <div className="animate-spin h-12 w-12 border-4 border-[colors.accent] border-t-transparent rounded-full"></div>
             <p className="mt-6 text-[colors.textSecondary] text-xl font-semibold">
-              Загрузка данных...
+              Деректер жүктелуде...
             </p>
           </motion.div>
         ) : error ? (
@@ -142,7 +142,7 @@ const StudentsPage = () => {
         ) : (
           <motion.div variants={itemVariants}>
             <h2 className="text-2xl md:text-3xl font-semibold text-[colors.accent] mb-6">
-              Список участников
+              Қатысушылар тізімі
             </h2>
             {students.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -163,25 +163,25 @@ const StudentsPage = () => {
                       </p>
                       {isUserTeacher(member.roles) && (
                         <span className="text-xs font-semibold text-white bg-[colors.teacherBadge] px-2 py-1 rounded-full">
-                          Учитель
+                          Оқытушы
                         </span>
                       )}
                     </div>
                     <p className="text-[colors.textSecondary] text-sm mt-2">
-                      Email: {member.email}
+                      Электрондық пошта: {member.email}
                     </p>
                     <p className="text-[colors.textSecondary] text-sm mt-1">
-                      Телефон: {member.phoneNumber || 'Не указан'}
+                      Телефон: {member.phoneNumber || 'Көрсетілмеген'}
                     </p>
                     <p className="text-[colors.textSecondary] text-sm mt-1">
-                      Дата рождения: {new Date(member.birthday).toLocaleDateString('ru-RU')}
+                      Туған күні: {new Date(member.birthday).toLocaleDateString('kk-KZ')}
                     </p>
                   </motion.div>
                 ))}
               </div>
             ) : (
               <p className="text-center text-[colors.textSecondary] text-xl font-semibold">
-                Участники отсутствуют
+                Қатысушылар жоқ
               </p>
             )}
           </motion.div>

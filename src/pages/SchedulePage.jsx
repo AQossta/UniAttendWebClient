@@ -17,14 +17,13 @@ const SchedulePage = () => {
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Colors consistent with StudentsPage.jsx, with black text
   const colors = {
     background: '#F3F4F6',
     cardBackground: '#FFFFFF',
     cardGradientStart: '#D1E3FA',
     cardGradientEnd: '#E6F0FA',
-    textPrimary: '#000000', // Black for primary text
-    textSecondary: '#333333', // Dark gray for secondary text
+    textPrimary: '#000000',
+    textSecondary: '#333333',
     accent: '#007AFF',
     border: '#E5E7EB',
     error: '#EF4444',
@@ -35,7 +34,7 @@ const SchedulePage = () => {
 
   const fetchSchedule = async () => {
     if (!user) {
-      setError('Данные пользователя отсутствуют');
+      setError('Пайдаланушы деректері жоқ');
       return;
     }
 
@@ -45,31 +44,31 @@ const SchedulePage = () => {
     try {
       const accessToken = user.accessToken || localStorage.getItem('accessToken');
       if (!accessToken) {
-        throw new Error('Токен доступа отсутствует');
+        throw new Error('Қатынас токені жоқ');
       }
 
       let response;
       if (user.roles.includes('teacher')) {
-        console.log(`Запрос расписания для преподавателя ${user.id}`);
+        console.log(`Оқытушы ${user.id} үшін кесте сұрауы`);
         response = await axios.get(`${API_TEACHER_SCHEDULE_BY_ID}${user.id}`, {
           headers: { 'Auth-token': accessToken },
         });
       } else if (user.roles.includes('student')) {
-        console.log(`Запрос расписания для группы ${user.groupId}`);
+        console.log(`Топ ${user.groupId} үшін кесте сұрауы`);
         response = await axios.get(`${API_STUDENT_SCHEDULE_BY_ID}${user.groupId}`, {
           headers: { 'Auth-token': accessToken },
         });
       } else {
-        throw new Error(`Неизвестная роль пользователя: ${user.roles.join(', ')}`);
+        throw new Error(`Пайдаланушының белгісіз рөлі: ${user.roles.join(', ')}`);
       }
 
       setSchedule(response.data.body || []);
     } catch (e) {
-      const errorMessage = e.response?.data?.message || 'Ошибка при загрузке расписания';
+      const errorMessage = e.response?.data?.message || 'Кестені жүктеу кезінде қате пайда болды';
       setError(errorMessage);
-      console.error('Ошибка:', errorMessage);
+      console.error('Қате:', errorMessage);
       if (e.response?.status === 401) {
-        setError('Сессия истекла. Пожалуйста, войдите снова');
+        setError('Сессия мерзімі аяқталды. Қайта кіріңіз');
         setIsAuthenticated(false);
         navigate('/profile');
       }
@@ -90,20 +89,19 @@ const SchedulePage = () => {
 
   const handleItemPress = (item) => {
     try {
-      // Navigate to QR code generation page for any user (student or teacher)
       navigate('/qr-generate', { state: { scheduleData: item } });
     } catch (error) {
-      console.error('Ошибка навигации:', error);
-      setError('Не удалось перейти к экрану QR-кода');
+      console.error('Навигация қатесі:', error);
+      setError('QR-код экранына өту мүмкін болмады');
     }
   };
 
   const handleStatsPress = (item) => {
     try {
-      navigate('/stats', { state: { scheduleData: item } });
+      navigate('/stats', { state: { scheduleId: item.id } }); // Передаем только ID расписания
     } catch (error) {
-      console.error('Ошибка навигации к статистике:', error);
-      setError('Не удалось открыть статистику');
+      console.error('Статистикаға навигация қатесі:', error);
+      setError('Статистиканы ашу мүмкін болмады');
     }
   };
 
@@ -115,7 +113,6 @@ const SchedulePage = () => {
     return `${format(start)}–${format(end)}`;
   };
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -137,13 +134,12 @@ const SchedulePage = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* Header */}
         <motion.div
           className="flex justify-between items-center mb-8 border-b border-[colors.border] pb-4"
           variants={itemVariants}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-[colors.textPrimary]">
-            Бугинги САБАКТАР
+            Бүгінгі сабақтар
           </h1>
           <button
             onClick={onRefresh}
@@ -156,7 +152,7 @@ const SchedulePage = () => {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
             ) : (
-              'Обновить'
+              'Жаңарту'
             )}
           </button>
         </motion.div>
@@ -171,7 +167,7 @@ const SchedulePage = () => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
             <p className="mt-6 text-[colors.textSecondary] text-xl font-semibold">
-              Загрузка расписания...
+              Кесте жүктелуде...
             </p>
           </motion.div>
         ) : error ? (
@@ -186,7 +182,7 @@ const SchedulePage = () => {
               onClick={fetchSchedule}
               className="bg-[colors.accent] text-white px-8 py-3 rounded-xl shadow-md hover:bg-blue-600 transition-colors"
             >
-              Попробовать снова
+              Қайтадан көру
             </button>
           </motion.div>
         ) : schedule.length === 0 ? (
@@ -195,13 +191,13 @@ const SchedulePage = () => {
             variants={itemVariants}
           >
             <p className="text-[colors.textSecondary] text-xl font-semibold text-center mb-6">
-              Расписание отсутствует
+              Кесте жоқ
             </p>
             <button
               onClick={fetchSchedule}
               className="bg-[colors.accent] text-white px-8 py-3 rounded-xl shadow-md hover:bg-blue-600 transition-colors"
             >
-              Обновить
+              Жаңарту
             </button>
           </motion.div>
         ) : (
@@ -236,10 +232,10 @@ const SchedulePage = () => {
                   </p>
                   <div className="flex justify-between items-center">
                     <p className="text-sm text-[colors.textSecondary]">
-                      Группа: {item.groupName}
+                      Топ: {item.groupName}
                     </p>
                     <p className="text-sm text-[colors.textSecondary] text-right">
-                      Преподаватель: {item.teacherName}
+                      Оқытушы: {item.teacherName}
                     </p>
                   </div>
                 </div>

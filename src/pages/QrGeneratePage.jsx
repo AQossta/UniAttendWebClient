@@ -43,13 +43,13 @@ const QrGeneratePage = () => {
 
   const generateQRCode = async () => {
     if (!schedule || !accessToken) {
-      setError('Недостаточно данных для генерации QR-кода');
+      setError('QR-кодты жасау үшін деректер жеткіліксіз');
       setLoading(false);
       return;
     }
 
     try {
-      console.log('Отправка запроса на генерацию QR-кода:', new Date().toISOString());
+      console.log('QR-кодты жасау сұрауын жіберу:', new Date().toISOString());
       const response = await axios.post(
         `${API_BASE}api/v1/teacher/qr/generate/${schedule.id}`,
         {},
@@ -64,8 +64,8 @@ const QrGeneratePage = () => {
       setSecondsRemaining(10); // Reset timer to 10 seconds
       setLoading(false);
     } catch (err) {
-      console.error('Ошибка генерации QR-кода:', err);
-      setError(err.response?.data?.message || 'Не удалось сгенерировать QR-код с сервера');
+      console.error('QR-кодты жасау қатесі:', err);
+      setError(err.response?.data?.message || 'Серверден QR-кодты жасау мүмкін болмады');
       setQrCodeData(null);
       setLoading(false);
     }
@@ -151,7 +151,7 @@ const QrGeneratePage = () => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
             <p className="mt-6 text-[colors.textSecondary] text-xl font-semibold">
-              Загрузка QR-кода...
+              QR-код жүктелуде...
             </p>
           </motion.div>
         ) : error ? (
@@ -166,7 +166,7 @@ const QrGeneratePage = () => {
               onClick={generateQRCode}
               className="bg-[colors.backButton] text-white px-8 py-3 rounded-xl shadow-md hover:bg-blue-600 transition-colors"
             >
-              Попробовать снова
+              Қайтадан көру
             </button>
           </motion.div>
         ) : (
@@ -174,30 +174,30 @@ const QrGeneratePage = () => {
             {/* Content */}
             <div className="flex-1 flex flex-col items-center">
               <h1 className="text-3xl md:text-4xl font-bold text-[colors.textPrimary] mb-6 text-center">
-                QR-код для занятия
+                Сабаққа арналған QR-код
               </h1>
               <p className="text-sm text-[colors.textSecondary] mb-2">
-                Предмет: {schedule.subject}
+                Пән: {schedule.subject}
               </p>
               <p className="text-sm text-[colors.textSecondary] mb-2">
-                Время: {formatTime(schedule.startTime, schedule.endTime)}
+                Уақыт: {formatTime(schedule.startTime, schedule.endTime)}
               </p>
               <p className="text-sm text-[colors.textSecondary] mb-2">
-                Группа: {schedule.groupName}
+                Топ: {schedule.groupName}
               </p>
               <p className="text-sm text-[colors.textSecondary] mb-4">
-                Преподаватель: {schedule.teacherName}
+                Оқытушы: {schedule.teacherName}
               </p>
               <p className="text-xl font-semibold text-[colors.accent] mb-6 text-center">
                 {secondsRemaining > 0
-                  ? `Осталось до обновления: ${secondsRemaining} сек`
-                  : 'QR-код истек, обновление...'}
+                  ? `Жаңартуға дейін қалды: ${secondsRemaining} сек`
+                  : 'QR-кодтың мерзімі аяқталды, жаңартылуда...'}
               </p>
               <div className="bg-[colors.cardBackground] p-4 rounded-xl shadow-md">
                 {qrCodeData && (
                   <img
                     src={qrCodeData}
-                    alt="QR Code"
+                    alt="QR-код"
                     className="w-[300px] h-[300px] md:w-[420px] md:h-[420px] object-contain"
                   />
                 )}
@@ -213,7 +213,7 @@ const QrGeneratePage = () => {
                     isRunning ? 'bg-[colors.stopButton] hover:bg-red-500' : 'bg-[colors.stopButton]/50 cursor-not-allowed'
                   }`}
                 >
-                  Остановить
+                  Тоқтату
                 </button>
                 <button
                   onClick={handleResume}
@@ -222,14 +222,14 @@ const QrGeneratePage = () => {
                     !isRunning ? 'bg-[colors.resumeButton] hover:bg-green-600' : 'bg-[colors.resumeButton]/50 cursor-not-allowed'
                   }`}
                 >
-                  Возобновить
+                  Жалғастыру
                 </button>
               </div>
               <button
                 onClick={() => navigate(-1)}
                 className="w-full bg-[colors.backButton] text-white px-6 py-3 rounded-xl shadow-md hover:bg-blue-600 transition-colors font-semibold"
               >
-                Вернуться
+                Артқа
               </button>
             </div>
           </motion.div>
